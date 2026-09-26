@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FIFA RefCam — Review</title>
+  <script>
+    (function () {
+      var path = location.pathname.replace(/\/+$/, "");
+      var cut = path.match(/^(.*)\/w\/[A-Za-z0-9_-]+$/);
+      var dir = cut ? cut[1] : path.replace(/\/[^/]+\.html$/i, "");
+      window.SITE_BASE = (dir || "") + "/";
+      document.write('<base href="' + window.SITE_BASE + '">');
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <p class="tag">FIFA RefCam</p>
+      <h1>Review room</h1>
+      <p class="lead">
+        Scan the code with the recording phone. That gathers the stub referee ID
+        and this phone’s device UUID — the same values stored on every uploaded clip.
+      </p>
+    </div>
+    <a class="apk" href="downloads/refcam.apk" download="RefCam.apk">Download the app (APK)</a>
+  </header>
+
+  <div class="workspace">
+    <aside class="rail">
+      <section class="card">
+        <div id="qr" aria-label="Pairing code for this room"></div>
+        <p class="hint">Room code</p>
+        <p id="room-code">…</p>
+        <p id="status" class="status">Opening a room…</p>
+      </section>
+
+      <section class="card" id="ids-card">
+        <h2>IDs on this room</h2>
+        <p class="hint">These must match the clip index written at upload.</p>
+        <dl id="ids">
+          <div>
+            <dt>Device UUID</dt>
+            <dd id="id-device">Waiting for a scan…</dd>
+          </div>
+          <div>
+            <dt>Referee ID (stub)</dt>
+            <dd id="id-ref">Waiting for a scan…</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+
+    <section class="stage">
+      <div class="player-wrap">
+        <video id="player" controls playsinline></video>
+        <p id="player-empty" class="player-empty">Select a clip to play</p>
+      </div>
+      <div class="ledger">
+        <h2>Uploaded clips</h2>
+        <p class="hint">File name, storage path, device UUID and referee ID.</p>
+        <ul id="clips"></ul>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
