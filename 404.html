@@ -25,7 +25,7 @@
         and this phone’s device UUID — the same values stored on every uploaded clip.
       </p>
     </div>
-    <a class="apk" href="downloads/refcam.apk" download="RefCam.apk">Download the app (APK)</a>
+    <button type="button" class="apk" id="apk-download">Download the app (APK)</button>
   </header>
 
   <div class="workspace">
@@ -65,6 +65,19 @@
       </div>
     </section>
   </div>
+
+  <dialog id="apk-gate" class="apk-gate">
+    <form method="dialog" id="apk-form">
+      <h2>Download the app</h2>
+      <p class="hint">Enter the download password.</p>
+      <input id="apk-password" type="password" autocomplete="off" autofocus>
+      <p id="apk-error" class="apk-error" hidden>That password is not correct.</p>
+      <div class="apk-actions">
+        <button type="button" class="apk-cancel" id="apk-cancel" value="cancel">Cancel</button>
+        <button type="submit" class="apk">Download</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="app.js"></script>

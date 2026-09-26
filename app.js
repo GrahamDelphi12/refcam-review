@@ -145,4 +145,41 @@ window.addEventListener("resize", () => {
   if (token && qrHost.childElementCount) drawQr(token);
 });
 
+const apkButton = document.getElementById("apk-download");
+const apkGate = document.getElementById("apk-gate");
+const apkForm = document.getElementById("apk-form");
+const apkPassword = document.getElementById("apk-password");
+const apkError = document.getElementById("apk-error");
+const apkCancel = document.getElementById("apk-cancel");
+
+function releaseApk() {
+  const link = document.createElement("a");
+  link.href = `${siteBase()}downloads/refcam.apk`;
+  link.download = "RefCam.apk";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+if (apkButton && apkGate && apkForm) {
+  apkButton.addEventListener("click", () => {
+    apkError.hidden = true;
+    apkPassword.value = "";
+    apkGate.showModal();
+    apkPassword.focus();
+  });
+  apkCancel.addEventListener("click", () => apkGate.close());
+  apkForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (apkPassword.value !== "RefCam") {
+      apkError.hidden = false;
+      apkPassword.focus();
+      apkPassword.select();
+      return;
+    }
+    apkGate.close();
+    releaseApk();
+  });
+}
+
 start();
