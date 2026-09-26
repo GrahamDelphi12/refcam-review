@@ -62,7 +62,16 @@ function renderIds(room) {
   idRef.textContent = refs.length ? refs.join("\n") : "Waiting for a scan…";
 }
 
+let clipFingerprint = "";
+let selectedName = null;
+
 function renderClips(clips) {
+  const fingerprint = clips
+    .map((clip) => `${clip.fileName}\0${clip.playUrl || ""}\0${clip.sizeBytes || 0}`)
+    .join("|");
+  if (fingerprint === clipFingerprint && clipsEl.childElementCount) return;
+  clipFingerprint = fingerprint;
+
   clipsEl.innerHTML = "";
   if (!clips.length) {
     statusEl.textContent = "Scan the code on the recording phone to gather its IDs.";
@@ -76,19 +85,35 @@ function renderClips(clips) {
     item.innerHTML = `<div class="name">${clip.fileName || "clip"}</div>
       <div class="meta">Referee ${ref} · Device ${device}</div>
       <div class="path">${clip.gsUri || clip.storagePath || ""}</div>`;
-    item.addEventListener("click", () => play(clip, item));
+    item.addEventListener("click", () => {
+      selectedName = clip.fileName;
+      play(clip, item);
+    });
     clipsEl.appendChild(item);
-    if (index === 0 && !player.src && clip.playUrl) play(clip, item);
+    const chosen = selectedName
+      ? clip.fileName === selectedName
+      : index === 0 && !player.src;
+    if (chosen) {
+      item.classList.add("active");
+      if (clip.playUrl && !player.src) play(clip, item);
+    }
   });
 }
 
 function play(clip, item) {
   [...clipsEl.children].forEach((node) => node.classList.remove("active"));
   item.classList.add("active");
-  if (!clip.playUrl) return;
-  player.src = clip.playUrl;
+  if (!clip.playUrl) {
+    statusEl.textContent = `${clip.fileName || "This clip"} is listed but not playable yet.`;
+    return;
+  }
+  if (player.src !== clip.playUrl) {
+    player.src = clip.playUrl;
+  }
   playerWrap.classList.add("has-video");
-  player.play().catch(() => {});
+  player.play().catch(() => {
+    statusEl.textContent = "The browser could not start this clip.";
+  });
 }
 
 async function refresh(token) {
