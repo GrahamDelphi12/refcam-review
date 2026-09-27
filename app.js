@@ -26,9 +26,7 @@ function roomUrl(token) {
   return `${origin}${base}/w/${token}`;
 }
 
-async function ensureRoom() {
-  const existing = tokenFromLocation();
-  if (existing) return existing;
+async function createRoom() {
   const response = await fetch(`${FUNCTIONS}/createRoom`, { method: "POST" });
   if (!response.ok) throw new Error("Could not open a review room.");
   const body = await response.json();
@@ -116,6 +114,47 @@ function play(clip, item) {
   });
 }
 
+const IDLE_MS = 5 * 60 * 1000;
+let activeToken = null;
+let pollTimer = null;
+let idleTimer = null;
+let sessionLive = false;
+
+function claimed(room) {
+  return (room.deviceKeys || []).length > 0 || (room.refereeIds || []).length > 0;
+}
+
+function clearFiles() {
+  clipFingerprint = "";
+  selectedName = null;
+  clipsEl.innerHTML = "";
+  player.pause();
+  player.removeAttribute("src");
+  player.load();
+  playerWrap.classList.remove("has-video");
+  idDevice.textContent = "Waiting for a scan…";
+  idRef.textContent = "Waiting for a scan…";
+}
+
+function bumpIdle() {
+  if (!sessionLive) return;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    lockSession().catch((error) => {
+      statusEl.textContent = error.message || "The review page timed out.";
+    });
+  }, IDLE_MS);
+}
+
+async function lockSession() {
+  sessionLive = false;
+  clearTimeout(idleTimer);
+  clearInterval(pollTimer);
+  clearFiles();
+  statusEl.textContent = "Idle for 5 minutes. Scan the new code to see the files again.";
+  await openSession();
+}
+
 async function refresh(token) {
   const response = await fetch(`${FUNCTIONS}/listClips?token=${encodeURIComponent(token)}`);
   if (!response.ok) {
@@ -124,21 +163,42 @@ async function refresh(token) {
     return;
   }
   const body = await response.json();
+  if (!claimed(body)) {
+    clearFiles();
+    statusEl.textContent = "Scan this code from Link to review site. Files stay hidden until the phone links.";
+    return;
+  }
   renderIds(body);
   renderClips(body.clips || []);
 }
 
+async function openSession() {
+  const token = await createRoom();
+  activeToken = token;
+  drawQr(token);
+  sessionLive = true;
+  bumpIdle();
+  await refresh(token);
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => {
+    if (activeToken === token) refresh(token);
+  }, 4000);
+}
+
 async function start() {
   try {
-    const token = await ensureRoom();
-    drawQr(token);
-    statusEl.textContent = "Scan this code from Link to review site.";
-    await refresh(token);
-    setInterval(() => refresh(token), 4000);
+    clearFiles();
+    statusEl.textContent = "Opening a new room…";
+    await openSession();
   } catch (error) {
     statusEl.textContent = error.message || "The review page failed to open.";
   }
 }
+
+["mousemove", "keydown", "touchstart", "pointerdown", "click"].forEach((name) => {
+  window.addEventListener(name, bumpIdle, { passive: true });
+});
+player.addEventListener("timeupdate", bumpIdle);
 
 window.addEventListener("resize", () => {
   const token = tokenFromLocation();
