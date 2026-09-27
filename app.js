@@ -1,6 +1,5 @@
 const FUNCTIONS = "https://us-central1-refcam-15b10.cloudfunctions.net";
 
-const roomCode = document.getElementById("room-code");
 const statusEl = document.getElementById("status");
 const clipsEl = document.getElementById("clips");
 const player = document.getElementById("player");
@@ -46,7 +45,6 @@ function drawQr(token) {
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.M,
   });
-  roomCode.textContent = token;
 }
 
 function unique(values) {
