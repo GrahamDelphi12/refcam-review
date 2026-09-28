@@ -22,7 +22,9 @@
       <h1>Review room</h1>
       <p class="lead">
         Scan the QR with the recording phone. Files stay hidden until that
-        phone links. Five minutes idle clears the list — scan again to continue.
+        phone links. A stub login shows this handset only. A live referee ID
+        gathers every device for that official, each clip still tagged by phone.
+        Five minutes idle clears the list — scan again to continue.
       </p>
     </div>
     <button type="button" class="apk" id="apk-download">Download the app (APK)</button>
@@ -33,6 +35,10 @@
       <section class="card">
         <div id="qr" aria-label="Pairing code for this review page"></div>
         <p id="status" class="status">Opening a review page…</p>
+        <p class="hint">
+          One phone per barcode. If a scan is refused, refresh this page for a
+          new code — the camera is fine; an old or already-used barcode will not link.
+        </p>
       </section>
 
       <section class="card" id="ids-card">
@@ -44,7 +50,7 @@
             <dd id="id-device">Waiting for a scan…</dd>
           </div>
           <div>
-            <dt>Referee ID (stub)</dt>
+            <dt>Referee ID</dt>
             <dd id="id-ref">Waiting for a scan…</dd>
           </div>
         </dl>
@@ -58,7 +64,7 @@
       </div>
       <div class="ledger">
         <h2>Uploaded clips</h2>
-        <p class="hint">File name, storage path, device UUID and referee ID.</p>
+        <p class="hint">File name, storage path, and the device that recorded each clip.</p>
         <ul id="clips"></ul>
       </div>
     </section>

@@ -51,11 +51,19 @@ function unique(values) {
   return [...new Set(values.filter(Boolean))];
 }
 
+function shortId(value) {
+  return value.length > 12 ? `${value.slice(0, 8)}…${value.slice(-4)}` : value;
+}
+
 function renderIds(room) {
   const devices = unique([...(room.deviceKeys || []), ...((room.clips || []).map((c) => c.deviceKey))]);
   const refs = unique([...(room.refereeIds || []), ...((room.clips || []).map((c) => c.refereeId))]);
   idDevice.textContent = devices.length ? devices.join("\n") : "Waiting for a scan…";
-  idRef.textContent = refs.length ? refs.join("\n") : "Waiting for a scan…";
+  if (room.scope === "referee" && refs.length) {
+    idRef.textContent = `${refs.join("\n")}\n(all devices for this official)`;
+  } else {
+    idRef.textContent = refs.length ? refs.join("\n") : "This phone only until a live referee ID is used.";
+  }
 }
 
 let clipFingerprint = "";
@@ -63,23 +71,23 @@ let selectedName = null;
 
 function renderClips(clips) {
   const fingerprint = clips
-    .map((clip) => `${clip.fileName}\0${clip.playUrl || ""}\0${clip.sizeBytes || 0}`)
+    .map((clip) => `${clip.fileName}\0${clip.playUrl || ""}\0${clip.sizeBytes || 0}\0${clip.deviceKey || ""}`)
     .join("|");
   if (fingerprint === clipFingerprint && clipsEl.childElementCount) return;
   clipFingerprint = fingerprint;
 
   clipsEl.innerHTML = "";
   if (!clips.length) {
-    statusEl.textContent = "Scan the code on the recording phone to gather its IDs.";
+    statusEl.textContent = "Scan the code on the recording phone to gather its files.";
     return;
   }
-  statusEl.textContent = `${clips.length} clip${clips.length === 1 ? "" : "s"} matched to the IDs on this room.`;
+  statusEl.textContent = `${clips.length} clip${clips.length === 1 ? "" : "s"} on this room.`;
   clips.forEach((clip, index) => {
     const item = document.createElement("li");
-    const ref = clip.refereeId || "unregistered";
-    const device = clip.deviceKey || "—";
+    const device = clip.deviceKey ? shortId(clip.deviceKey) : "—";
+    const ref = clip.refereeId || "";
     item.innerHTML = `<div class="name">${clip.fileName || "clip"}</div>
-      <div class="meta">Referee ${ref} · Device ${device}</div>
+      <div class="meta">Device ${device}${ref ? ` · Referee ${ref}` : ""}</div>
       <div class="path">${clip.gsUri || clip.storagePath || ""}</div>`;
     item.addEventListener("click", () => {
       selectedName = clip.fileName;
