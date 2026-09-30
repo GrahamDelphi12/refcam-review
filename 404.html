@@ -25,7 +25,10 @@
         phone links. Five minutes idle clears the list — scan again to continue.
       </p>
     </div>
-    <button type="button" class="apk" id="apk-download">Download the app (APK)</button>
+    <button type="button" class="apk" id="apk-download">
+      Download the app (APK)
+      <span class="apk-stamp" id="apk-stamp" hidden></span>
+    </button>
   </header>
 
   <div class="workspace">
@@ -68,6 +71,7 @@
     <form method="dialog" id="apk-form">
       <h2>Download the app</h2>
       <p class="hint">Enter the download password.</p>
+      <p class="hint" id="apk-built" hidden></p>
       <input id="apk-password" type="password" autocomplete="off" autofocus>
       <p id="apk-error" class="apk-error" hidden>That password is not correct.</p>
       <div class="apk-actions">

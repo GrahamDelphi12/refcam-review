@@ -212,15 +212,52 @@ window.addEventListener("resize", () => {
 });
 
 const apkButton = document.getElementById("apk-download");
+const apkStamp = document.getElementById("apk-stamp");
+const apkBuilt = document.getElementById("apk-built");
 const apkGate = document.getElementById("apk-gate");
 const apkForm = document.getElementById("apk-form");
 const apkPassword = document.getElementById("apk-password");
 const apkError = document.getElementById("apk-error");
 const apkCancel = document.getElementById("apk-cancel");
 
+function apkHref() {
+  return `${siteBase()}downloads/refcam.apk`;
+}
+
+function formatApkTime(httpDate) {
+  const when = new Date(httpDate);
+  if (Number.isNaN(when.getTime())) return "";
+  return when.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+async function labelApkAge() {
+  try {
+    const response = await fetch(apkHref(), { method: "HEAD", cache: "no-store" });
+    const raw = response.headers.get("Last-Modified");
+    const stamp = raw ? formatApkTime(raw) : "";
+    if (!stamp) return;
+    if (apkStamp) {
+      apkStamp.hidden = false;
+      apkStamp.textContent = stamp;
+    }
+    if (apkBuilt) {
+      apkBuilt.hidden = false;
+      apkBuilt.textContent = `Uploaded ${stamp}.`;
+    }
+  } catch {
+    // The button still downloads; the date is only a freshness check.
+  }
+}
+
 function releaseApk() {
   const link = document.createElement("a");
-  link.href = `${siteBase()}downloads/refcam.apk`;
+  link.href = apkHref();
   link.download = "RefCam.apk";
   document.body.appendChild(link);
   link.click();
@@ -246,6 +283,7 @@ if (apkButton && apkGate && apkForm) {
     apkGate.close();
     releaseApk();
   });
+  labelApkAge();
 }
 
 start();

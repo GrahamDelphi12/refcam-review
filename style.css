@@ -61,6 +61,21 @@ h1 { margin: 0 0 6px; font-size: 26px; }
 }
 .apk:hover { filter: brightness(1.08); }
 
+header .apk {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: left;
+}
+.apk-stamp {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
 .apk-gate {
   border: 0;
   border-radius: 12px;
