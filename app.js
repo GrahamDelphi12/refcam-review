@@ -67,11 +67,11 @@ function renderIds(room) {
 }
 
 let clipFingerprint = "";
-let selectedName = null;
+let selectedId = null;
 
 function renderClips(clips) {
   const fingerprint = clips
-    .map((clip) => `${clip.fileName}\0${clip.playUrl || ""}\0${clip.sizeBytes || 0}\0${clip.deviceKey || ""}`)
+    .map((clip) => `${clip.id || clip.fileName}\0${clip.playUrl || ""}\0${clip.sizeBytes || 0}`)
     .join("|");
   if (fingerprint === clipFingerprint && clipsEl.childElementCount) return;
   clipFingerprint = fingerprint;
@@ -87,15 +87,14 @@ function renderClips(clips) {
     const device = clip.deviceKey ? shortId(clip.deviceKey) : "—";
     const ref = clip.refereeId || "";
     item.innerHTML = `<div class="name">${clip.fileName || "clip"}</div>
-      <div class="meta">Device ${device}${ref ? ` · Referee ${ref}` : ""}</div>
-      <div class="path">${clip.gsUri || clip.storagePath || ""}</div>`;
+      <div class="meta">Device ${device}${ref ? ` · Referee ${ref}` : ""}</div>`;
     item.addEventListener("click", () => {
-      selectedName = clip.fileName;
+      selectedId = clip.id || clip.fileName;
       play(clip, item);
     });
     clipsEl.appendChild(item);
-    const chosen = selectedName
-      ? clip.fileName === selectedName
+    const chosen = selectedId
+      ? (clip.id || clip.fileName) === selectedId
       : index === 0 && !player.src;
     if (chosen) {
       item.classList.add("active");
@@ -132,7 +131,7 @@ function claimed(room) {
 
 function clearFiles() {
   clipFingerprint = "";
-  selectedName = null;
+  selectedId = null;
   clipsEl.innerHTML = "";
   player.pause();
   player.removeAttribute("src");
