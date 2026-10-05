@@ -204,6 +204,7 @@ async function start() {
   window.addEventListener(name, bumpIdle, { passive: true });
 });
 player.addEventListener("timeupdate", bumpIdle);
+player.addEventListener("contextmenu", (event) => event.preventDefault());
 
 window.addEventListener("resize", () => {
   const token = tokenFromLocation();
