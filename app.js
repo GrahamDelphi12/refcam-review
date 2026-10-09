@@ -110,14 +110,26 @@ function play(clip, item) {
     statusEl.textContent = `${clip.fileName || "This clip"} is listed but not playable yet.`;
     return;
   }
-  if (player.src !== clip.playUrl) {
-    player.src = clip.playUrl;
-  }
+  // A failed Range request leaves the element in error. Setting the same
+  // src again does nothing; drop it and load so a click can recover.
+  player.removeAttribute("src");
+  player.load();
+  player.src = clip.playUrl;
   playerWrap.classList.add("has-video");
   player.play().catch(() => {
-    statusEl.textContent = "The browser could not start this clip.";
+    statusEl.textContent = "The browser could not start this clip. Click the row again.";
   });
 }
+
+player.addEventListener("error", () => {
+  const code = player.error ? player.error.code : 0;
+  statusEl.textContent =
+    code === 2
+      ? "The clip did not load (network). Click the row again."
+      : code === 4
+        ? "The browser could not decode this clip."
+        : "The clip did not play. Click the row again.";
+});
 
 const IDLE_MS = 5 * 60 * 1000;
 let activeToken = null;
