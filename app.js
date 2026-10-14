@@ -236,34 +236,16 @@ function apkHref() {
   return `${siteBase()}downloads/refcam.apk`;
 }
 
-function formatApkTime(httpDate) {
-  const when = new Date(httpDate);
-  if (Number.isNaN(when.getTime())) return "";
-  return when.toLocaleString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const APK_PUBLISHED = "14 Oct 2026";
 
-async function labelApkAge() {
-  try {
-    const response = await fetch(apkHref(), { method: "HEAD", cache: "no-store" });
-    const raw = response.headers.get("Last-Modified");
-    const stamp = raw ? formatApkTime(raw) : "";
-    if (!stamp) return;
-    if (apkStamp) {
-      apkStamp.hidden = false;
-      apkStamp.textContent = stamp;
-    }
-    if (apkBuilt) {
-      apkBuilt.hidden = false;
-      apkBuilt.textContent = `Uploaded ${stamp}.`;
-    }
-  } catch {
-    // The button still downloads; the date is only a freshness check.
+function labelApkAge() {
+  if (apkStamp) {
+    apkStamp.hidden = false;
+    apkStamp.textContent = APK_PUBLISHED;
+  }
+  if (apkBuilt) {
+    apkBuilt.hidden = false;
+    apkBuilt.textContent = `Uploaded ${APK_PUBLISHED}.`;
   }
 }
 
